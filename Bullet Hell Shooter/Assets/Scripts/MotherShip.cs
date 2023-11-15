@@ -39,9 +39,9 @@ public class MotherShip : MonoBehaviour
   private IEnumerator Shoot()
   {
     yield return StartCoroutine(ShootAlternate());
-    yield return StartCoroutine(ShootSpiral(10));
-    yield return StartCoroutine(ShootTan());
     yield return StartCoroutine(ShootSpiral(12));
+    yield return StartCoroutine(ShootTan());
+    yield return StartCoroutine(ShootAll(10));
   }
 
   /// <summary>
@@ -100,6 +100,46 @@ public class MotherShip : MonoBehaviour
         {
           Instantiate(BulletPrefab, Player.transform.position, Quaternion.identity)
               .GetComponent<Bullet>().Init(i + j);
+        }
+        currentBullets += bullets;
+        yield return new WaitForSeconds(step / 20);
+      }
+    }
+  }
+
+  /// <summary>
+  /// Dispara las balas en espiral y múltiples direcciones al mismo tiempo
+  /// </summary>
+  /// <param name="bullets"></param>
+  /// <returns></returns>
+  private IEnumerator ShootAll(int bullets = 10)
+  {
+    float startTime = Time.time;
+    angle = 360 / bullets;
+
+    while (Time.time - startTime < shootingDuration)
+    {
+      for (int i = 0; i < 360; i += bullets)
+      {
+        for (int j = 0; j < 360; j += (int)(angle))
+        {
+          float nextAngle = (float)(Mathf.Abs(Mathf.Sin(Mathf.Tan(i))) / 0.1);
+          Instantiate(BulletPrefab, Player.transform.position, Quaternion.identity)
+              .GetComponent<Bullet>().Init(i + j, nextAngle);
+        }
+        currentBullets += bullets;
+        yield return new WaitForSeconds(step / 20);
+      }
+
+      new WaitForSeconds(step / 10);
+
+      for (int i = 360; i > 0; i -= bullets)
+      {
+        for (int j = 360; j > 0; j -= (int)(angle))
+        {
+          float nextAngle = (float)(Mathf.Abs(Mathf.Sin(Mathf.Tan(i))) / 0.1);
+          Instantiate(BulletPrefab, Player.transform.position, Quaternion.identity)
+              .GetComponent<Bullet>().Init(i + j, nextAngle);
         }
         currentBullets += bullets;
         yield return new WaitForSeconds(step / 20);
